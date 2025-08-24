@@ -1,0 +1,176 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(45, 39%, 98%);
+  --foreground: hsl(0, 0%, 17%);
+  --card: hsl(180, 6.6667%, 97.0588%);
+  --card-foreground: hsl(0, 0%, 17%);
+  --popover: hsl(45, 39%, 98%);
+  --popover-foreground: hsl(0, 0%, 17%);
+  --primary: hsl(23, 74%, 29%);
+  --primary-foreground: hsl(0, 0%, 98%);
+  --secondary: hsl(0, 0%, 17%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --muted: hsl(210, 40%, 96%);
+  --muted-foreground: hsl(215, 16%, 47%);
+  --accent: hsl(32, 57%, 92%);
+  --accent-foreground: hsl(23, 74%, 29%);
+  --destructive: hsl(0, 85%, 60%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --border: hsl(32, 57%, 92%);
+  --input: hsl(32, 57%, 96%);
+  --ring: hsl(23, 74%, 29%);
+  --chart-1: hsl(23, 74%, 29%);
+  --chart-2: hsl(142, 71%, 45%);
+  --chart-3: hsl(48, 96%, 53%);
+  --chart-4: hsl(147, 78%, 42%);
+  --chart-5: hsl(341, 75%, 51%);
+  
+  /* Custom shelf colors */
+  --shelf-brown: hsl(23, 74%, 29%);
+  --shelf-green: hsl(108, 50%, 30%);
+  --shelf-cream: hsl(49, 32%, 87%);
+  --shelf-beige: hsl(37, 36%, 93%);
+  --shelf-gold: hsl(43, 74%, 49%);
+  --shelf-charcoal: hsl(0, 0%, 17%);
+  --shelf-bg: hsl(45, 39%, 98%);
+  
+  --font-sans: 'Inter', 'Open Sans', sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-mono: 'Fira Code', 'Menlo', monospace;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: hsl(0, 0%, 4%);
+  --foreground: hsl(0, 0%, 95%);
+  --card: hsl(228, 9.8039%, 10%);
+  --card-foreground: hsl(0, 0%, 95%);
+  --popover: hsl(0, 0%, 4%);
+  --popover-foreground: hsl(0, 0%, 95%);
+  --primary: hsl(23, 74%, 35%);
+  --primary-foreground: hsl(0, 0%, 95%);
+  --secondary: hsl(0, 0%, 90%);
+  --secondary-foreground: hsl(0, 0%, 9%);
+  --muted: hsl(0, 0%, 15%);
+  --muted-foreground: hsl(240, 5%, 65%);
+  --accent: hsl(23, 30%, 15%);
+  --accent-foreground: hsl(23, 74%, 35%);
+  --destructive: hsl(0, 85%, 60%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --border: hsl(215, 27.9%, 16.9%);
+  --input: hsl(215, 27.9%, 16.9%);
+  --ring: hsl(23, 74%, 35%);
+  
+  /* Dark mode shelf colors */
+  --shelf-brown: hsl(23, 74%, 35%);
+  --shelf-green: hsl(108, 50%, 35%);
+  --shelf-cream: hsl(49, 20%, 20%);
+  --shelf-beige: hsl(37, 20%, 15%);
+  --shelf-gold: hsl(43, 74%, 55%);
+  --shelf-charcoal: hsl(0, 0%, 95%);
+  --shelf-bg: hsl(0, 0%, 4%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+}
+
+/* Custom utility classes */
+@layer utilities {
+  .text-shelf-brown {
+    color: var(--shelf-brown);
+  }
+  
+  .text-shelf-green {
+    color: var(--shelf-green);
+  }
+  
+  .text-shelf-cream {
+    color: var(--shelf-cream);
+  }
+  
+  .text-shelf-beige {
+    color: var(--shelf-beige);
+  }
+  
+  .text-shelf-gold {
+    color: var(--shelf-gold);
+  }
+  
+  .text-shelf-charcoal {
+    color: var(--shelf-charcoal);
+  }
+  
+  .bg-shelf-brown {
+    background-color: var(--shelf-brown);
+  }
+  
+  .bg-shelf-green {
+    background-color: var(--shelf-green);
+  }
+  
+  .bg-shelf-cream {
+    background-color: var(--shelf-cream);
+  }
+  
+  .bg-shelf-beige {
+    background-color: var(--shelf-beige);
+  }
+  
+  .bg-shelf-gold {
+    background-color: var(--shelf-gold);
+  }
+  
+  .bg-shelf-charcoal {
+    background-color: var(--shelf-charcoal);
+  }
+  
+  .bg-shelf-bg {
+    background-color: var(--shelf-bg);
+  }
+  
+  .border-shelf-brown {
+    border-color: var(--shelf-brown);
+  }
+  
+  .border-shelf-beige {
+    border-color: var(--shelf-beige);
+  }
+  
+  .hover\:bg-shelf-brown:hover {
+    background-color: var(--shelf-brown);
+  }
+  
+  .hover\:text-shelf-brown:hover {
+    color: var(--shelf-brown);
+  }
+  
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+  
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+}

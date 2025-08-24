@@ -1,0 +1,642 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShelfSwap - Book Exchange Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'shelf-brown': '#8B4513',
+                        'shelf-green': '#2D5A27',
+                        'shelf-cream': '#F5F5DC',
+                        'shelf-beige': '#F7F3E9',
+                        'shelf-gold': '#DAA520',
+                        'shelf-charcoal': '#2C2C2C',
+                        'shelf-bg': '#FEFCF8'
+                    },
+                    fontFamily: {
+                        'serif': ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-shelf-bg font-sans">
+    <!-- @COMPONENT: Navbar [authenticated state, active routes] -->
+    <nav class="bg-white shadow-md border-b border-shelf-beige sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-8">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-book-open text-shelf-brown text-2xl"></i>
+                        <span class="font-serif font-bold text-xl text-shelf-charcoal">ShelfSwap</span>
+                    </div>
+                    <div class="hidden md:flex space-x-6">
+                        <a href="/books" class="text-shelf-brown border-b-2 border-shelf-brown font-medium py-2">Browse Books</a>
+                        <a href="/my-books" class="text-gray-600 hover:text-shelf-brown transition-colors py-2">My Books</a>
+                        <a href="/exchanges" class="text-gray-600 hover:text-shelf-brown transition-colors py-2">Exchanges</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- @STATE: isAuthenticated:boolean = true -->
+                    <button data-event="click:handleUpload" class="bg-shelf-green text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium">
+                        <i class="fas fa-plus mr-2"></i>Upload Book
+                    </button>
+                    <div class="relative">
+                        <button class="flex items-center space-x-2 text-gray-700 hover:text-shelf-brown">
+                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=32&h=32" alt="User avatar" class="w-8 h-8 rounded-full">
+                            <span data-bind="user.name">Alex Johnson</span>
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                    </div>
+                    <button class="md:hidden text-gray-600">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- @END_COMPONENT: Navbar -->
+
+    <!-- @COMPONENT: Hero Section [book discovery focus] -->
+    <section class="bg-gradient-to-r from-shelf-cream to-shelf-beige py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h1 class="font-serif text-4xl lg:text-5xl font-bold text-shelf-charcoal mb-6">
+                        Discover Your Next Great Read
+                    </h1>
+                    <p class="text-lg text-gray-600 mb-8 leading-relaxed">
+                        Exchange books with fellow readers, discover new genres, and build a community around the love of reading. Upload your books and find your next literary adventure.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button class="bg-shelf-brown text-white px-6 py-3 rounded-lg font-medium hover:bg-opacity-90 transition-colors">
+                            Start Browsing
+                        </button>
+                        <button class="border-2 border-shelf-brown text-shelf-brown px-6 py-3 rounded-lg font-medium hover:bg-shelf-brown hover:text-white transition-colors">
+                            Upload Your First Book
+                        </button>
+                    </div>
+                </div>
+                <div class="relative">
+                    <!-- A cozy reading nook with vintage books and warm lighting -->
+                    <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&h=400" alt="Cozy reading space with books" class="rounded-xl shadow-2xl w-full h-auto">
+                    <div class="absolute -bottom-4 -right-4 bg-shelf-gold text-white p-4 rounded-xl shadow-lg">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold" data-bind="stats.totalBooks">2,847</div>
+                            <div class="text-sm">Books Available</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: Hero Section -->
+
+    <!-- @COMPONENT: Search and Filters [book discovery] -->
+    <section class="bg-white shadow-sm border-b border-gray-200 py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row gap-4 items-center justify-between">
+                <div class="flex-1 max-w-md">
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        <input type="text" placeholder="Search by title, author, or genre..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-shelf-brown focus:border-transparent">
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-shelf-brown">
+                        <option>All Genres</option>
+                        <option>Fiction</option>
+                        <option>Non-Fiction</option>
+                        <option>Mystery</option>
+                        <option>Romance</option>
+                        <option>Sci-Fi</option>
+                        <option>Biography</option>
+                    </select>
+                    <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-shelf-brown">
+                        <option>Any Condition</option>
+                        <option>Like New</option>
+                        <option>Good</option>
+                        <option>Fair</option>
+                    </select>
+                    <button class="bg-shelf-brown text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-colors">
+                        <i class="fas fa-filter mr-2"></i>Filter
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: Search and Filters -->
+
+    <!-- @COMPONENT: Books Grid [main content area] -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="font-serif text-3xl font-bold text-shelf-charcoal">Available Books</h2>
+            <div class="flex items-center space-x-4">
+                <span class="text-gray-600" data-bind="books.length">247 books found</span>
+                <div class="flex border border-gray-300 rounded-lg overflow-hidden">
+                    <button class="px-3 py-1 bg-shelf-brown text-white">
+                        <i class="fas fa-th-large"></i>
+                    </button>
+                    <button class="px-3 py-1 hover:bg-gray-100">
+                        <i class="fas fa-list"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- @MAP: books.map(book => ( -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+            <!-- Book Card 1 -->
+            <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden cursor-pointer" data-event="click:showBookDetails">
+                <div class="aspect-[3/4] bg-gray-100">
+                    <!-- Classic literature book cover -->
+                    <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=400" alt="Book cover" class="w-full h-full object-cover">
+                </div>
+                <div class="p-4">
+                    <h3 class="font-semibold text-lg text-shelf-charcoal mb-2 line-clamp-2" data-bind="book.title">The Great Gatsby</h3>
+                    <p class="text-gray-600 mb-2" data-bind="book.author">F. Scott Fitzgerald</p>
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="bg-shelf-beige text-shelf-brown px-2 py-1 rounded text-sm" data-bind="book.genre">Classic Fiction</span>
+                        <span class="text-green-600 text-sm font-medium">Like New</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-sm text-gray-500">
+                        <img src="https://pixabay.com/get/g7293847474b725c9042bd7495dadb649cdf8ccd6f9081ec1b633259ccf75af67ef0a55bd2a08c5743e1f2ead9e23cf508da5e206e4d94422413be78960bcf61c_1280.jpg" alt="Owner avatar" class="w-6 h-6 rounded-full">
+                        <span data-bind="book.owner.name">Sarah Chen</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Book Card 2 -->
+            <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden cursor-pointer">
+                <div class="aspect-[3/4] bg-gray-100">
+                    <!-- Science fiction book cover -->
+                    <img src="https://images.unsplash.com/photo-1518373714866-3f1478910cc0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=400" alt="Book cover" class="w-full h-full object-cover">
+                </div>
+                <div class="p-4">
+                    <h3 class="font-semibold text-lg text-shelf-charcoal mb-2 line-clamp-2">Dune</h3>
+                    <p class="text-gray-600 mb-2">Frank Herbert</p>
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="bg-shelf-beige text-shelf-brown px-2 py-1 rounded text-sm">Science Fiction</span>
+                        <span class="text-yellow-600 text-sm font-medium">Good</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-sm text-gray-500">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=24&h=24" alt="Owner avatar" class="w-6 h-6 rounded-full">
+                        <span>Mike Rodriguez</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Book Card 3 -->
+            <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden cursor-pointer">
+                <div class="aspect-[3/4] bg-gray-100">
+                    <!-- Mystery novel book cover -->
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=400" alt="Book cover" class="w-full h-full object-cover">
+                </div>
+                <div class="p-4">
+                    <h3 class="font-semibold text-lg text-shelf-charcoal mb-2 line-clamp-2">The Girl with the Dragon Tattoo</h3>
+                    <p class="text-gray-600 mb-2">Stieg Larsson</p>
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="bg-shelf-beige text-shelf-brown px-2 py-1 rounded text-sm">Mystery</span>
+                        <span class="text-green-600 text-sm font-medium">Like New</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-sm text-gray-500">
+                        <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=24&h=24" alt="Owner avatar" class="w-6 h-6 rounded-full">
+                        <span>Emma Wilson</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Book Card 4 -->
+            <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden cursor-pointer">
+                <div class="aspect-[3/4] bg-gray-100">
+                    <!-- Romance novel book cover -->
+                    <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=400" alt="Book cover" class="w-full h-full object-cover">
+                </div>
+                <div class="p-4">
+                    <h3 class="font-semibold text-lg text-shelf-charcoal mb-2 line-clamp-2">Pride and Prejudice</h3>
+                    <p class="text-gray-600 mb-2">Jane Austen</p>
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="bg-shelf-beige text-shelf-brown px-2 py-1 rounded text-sm">Romance</span>
+                        <span class="text-yellow-600 text-sm font-medium">Good</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-sm text-gray-500">
+                        <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=24&h=24" alt="Owner avatar" class="w-6 h-6 rounded-full">
+                        <span>Lisa Park</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- More book cards... -->
+            <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden cursor-pointer">
+                <div class="aspect-[3/4] bg-gray-100">
+                    <!-- Non-fiction book cover -->
+                    <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=400" alt="Book cover" class="w-full h-full object-cover">
+                </div>
+                <div class="p-4">
+                    <h3 class="font-semibold text-lg text-shelf-charcoal mb-2 line-clamp-2">Sapiens: A Brief History of Humankind</h3>
+                    <p class="text-gray-600 mb-2">Yuval Noah Harari</p>
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="bg-shelf-beige text-shelf-brown px-2 py-1 rounded text-sm">Non-Fiction</span>
+                        <span class="text-green-600 text-sm font-medium">Like New</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-sm text-gray-500">
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=24&h=24" alt="Owner avatar" class="w-6 h-6 rounded-full">
+                        <span>David Kim</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden cursor-pointer">
+                <div class="aspect-[3/4] bg-gray-100">
+                    <!-- Biography book cover -->
+                    <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=400" alt="Book cover" class="w-full h-full object-cover">
+                </div>
+                <div class="p-4">
+                    <h3 class="font-semibold text-lg text-shelf-charcoal mb-2 line-clamp-2">Steve Jobs</h3>
+                    <p class="text-gray-600 mb-2">Walter Isaacson</p>
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="bg-shelf-beige text-shelf-brown px-2 py-1 rounded text-sm">Biography</span>
+                        <span class="text-orange-600 text-sm font-medium">Fair</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-sm text-gray-500">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=24&h=24" alt="Owner avatar" class="w-6 h-6 rounded-full">
+                        <span>John Smith</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden cursor-pointer">
+                <div class="aspect-[3/4] bg-gray-100">
+                    <!-- Fantasy book cover -->
+                    <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=400" alt="Book cover" class="w-full h-full object-cover">
+                </div>
+                <div class="p-4">
+                    <h3 class="font-semibold text-lg text-shelf-charcoal mb-2 line-clamp-2">The Lord of the Rings</h3>
+                    <p class="text-gray-600 mb-2">J.R.R. Tolkien</p>
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="bg-shelf-beige text-shelf-brown px-2 py-1 rounded text-sm">Fantasy</span>
+                        <span class="text-yellow-600 text-sm font-medium">Good</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-sm text-gray-500">
+                        <img src="https://pixabay.com/get/g7293847474b725c9042bd7495dadb649cdf8ccd6f9081ec1b633259ccf75af67ef0a55bd2a08c5743e1f2ead9e23cf508da5e206e4d94422413be78960bcf61c_1280.jpg" alt="Owner avatar" class="w-6 h-6 rounded-full">
+                        <span>Rachel Green</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden cursor-pointer">
+                <div class="aspect-[3/4] bg-gray-100">
+                    <!-- Self-help book cover -->
+                    <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=400" alt="Book cover" class="w-full h-full object-cover">
+                </div>
+                <div class="p-4">
+                    <h3 class="font-semibold text-lg text-shelf-charcoal mb-2 line-clamp-2">Atomic Habits</h3>
+                    <p class="text-gray-600 mb-2">James Clear</p>
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="bg-shelf-beige text-shelf-brown px-2 py-1 rounded text-sm">Self-Help</span>
+                        <span class="text-green-600 text-sm font-medium">Like New</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-sm text-gray-500">
+                        <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=24&h=24" alt="Owner avatar" class="w-6 h-6 rounded-full">
+                        <span>Nina Patel</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- @END_MAP )) -->
+
+        <!-- Pagination -->
+        <div class="flex justify-center items-center space-x-2">
+            <button class="px-3 py-2 text-gray-400 cursor-not-allowed">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="px-3 py-2 bg-shelf-brown text-white rounded">1</button>
+            <button class="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded">2</button>
+            <button class="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded">3</button>
+            <span class="px-3 py-2 text-gray-400">...</span>
+            <button class="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded">12</button>
+            <button class="px-3 py-2 text-gray-600 hover:text-shelf-brown">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </main>
+    <!-- @END_COMPONENT: Books Grid -->
+
+    <!-- @COMPONENT: Book Upload Modal [protected route] -->
+    <div id="uploadModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="min-h-screen flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="font-serif text-2xl font-bold text-shelf-charcoal">Upload a Book</h2>
+                        <button class="text-gray-400 hover:text-gray-600" data-event="click:closeModal">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <form data-event="submit:handleBookUpload" class="space-y-6">
+                        <!-- Cover Image Upload -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Book Cover</label>
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-shelf-brown transition-colors">
+                                <div class="space-y-2">
+                                    <i class="fas fa-cloud-upload-alt text-3xl text-gray-400"></i>
+                                    <div>
+                                        <span class="text-shelf-brown font-medium">Click to upload</span>
+                                        <span class="text-gray-500"> or drag and drop</span>
+                                    </div>
+                                    <p class="text-xs text-gray-500">PNG, JPG up to 10MB</p>
+                                </div>
+                                <input type="file" class="hidden" accept="image/*" data-implementation="Handle file upload">
+                            </div>
+                        </div>
+
+                        <!-- Book Details -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Title *</label>
+                                <input type="text" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-shelf-brown focus:border-transparent" placeholder="Enter book title">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Author *</label>
+                                <input type="text" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-shelf-brown focus:border-transparent" placeholder="Enter author name">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Genre *</label>
+                                <select required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-shelf-brown focus:border-transparent">
+                                    <option value="">Select a genre</option>
+                                    <option value="fiction">Fiction</option>
+                                    <option value="non-fiction">Non-Fiction</option>
+                                    <option value="mystery">Mystery</option>
+                                    <option value="romance">Romance</option>
+                                    <option value="sci-fi">Science Fiction</option>
+                                    <option value="fantasy">Fantasy</option>
+                                    <option value="biography">Biography</option>
+                                    <option value="self-help">Self-Help</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Condition *</label>
+                                <select required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-shelf-brown focus:border-transparent">
+                                    <option value="">Select condition</option>
+                                    <option value="like-new">Like New</option>
+                                    <option value="good">Good</option>
+                                    <option value="fair">Fair</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                            <textarea rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-shelf-brown focus:border-transparent" placeholder="Describe the book, its condition, and why you're offering it for exchange..."></textarea>
+                        </div>
+
+                        <div class="flex justify-end space-x-4 pt-4 border-t border-gray-200">
+                            <button type="button" class="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors" data-event="click:closeModal">
+                                Cancel
+                            </button>
+                            <button type="submit" class="bg-shelf-green text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium">
+                                Upload Book
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: Book Upload Modal -->
+
+    <!-- @COMPONENT: Book Detail Modal [exchange functionality] -->
+    <div id="bookDetailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="min-h-screen flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-6">
+                        <h2 class="font-serif text-2xl font-bold text-shelf-charcoal">Book Details</h2>
+                        <button class="text-gray-400 hover:text-gray-600" data-event="click:closeBookDetail">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div class="lg:col-span-1">
+                            <div class="aspect-[3/4] bg-gray-100 rounded-lg overflow-hidden">
+                                <!-- Detailed book cover image -->
+                                <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=600" alt="Book cover" class="w-full h-full object-cover">
+                            </div>
+                        </div>
+                        
+                        <div class="lg:col-span-2 space-y-6">
+                            <div>
+                                <h3 class="font-serif text-3xl font-bold text-shelf-charcoal mb-2" data-bind="selectedBook.title">The Great Gatsby</h3>
+                                <p class="text-xl text-gray-600 mb-4" data-bind="selectedBook.author">by F. Scott Fitzgerald</p>
+                                
+                                <div class="flex flex-wrap gap-3 mb-6">
+                                    <span class="bg-shelf-beige text-shelf-brown px-3 py-1 rounded-full text-sm font-medium" data-bind="selectedBook.genre">Classic Fiction</span>
+                                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium" data-bind="selectedBook.condition">Like New</span>
+                                </div>
+                            </div>
+
+                            <div class="border-l-4 border-shelf-gold pl-4">
+                                <h4 class="font-semibold text-gray-900 mb-2">About this book</h4>
+                                <p class="text-gray-600 leading-relaxed" data-bind="selectedBook.description">
+                                    This classic American novel tells the story of Jay Gatsby's pursuit of the American Dream in the Jazz Age. A beautifully written exploration of wealth, love, and the moral decay beneath the glittering surface of the 1920s. This copy is in excellent condition with minimal wear.
+                                </p>
+                            </div>
+
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h4 class="font-semibold text-gray-900 mb-3">Owner Information</h4>
+                                <div class="flex items-center space-x-3">
+                                    <img src="https://pixabay.com/get/g7293847474b725c9042bd7495dadb649cdf8ccd6f9081ec1b633259ccf75af67ef0a55bd2a08c5743e1f2ead9e23cf508da5e206e4d94422413be78960bcf61c_1280.jpg" alt="Owner avatar" class="w-10 h-10 rounded-full">
+                                    <div>
+                                        <p class="font-medium text-gray-900" data-bind="selectedBook.owner.name">Sarah Chen</p>
+                                        <p class="text-sm text-gray-500">Member since 2022 • 15 successful exchanges</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex space-x-4">
+                                <button class="flex-1 bg-shelf-green text-white py-3 px-6 rounded-lg font-medium hover:bg-green-700 transition-colors" data-event="click:requestExchange">
+                                    <i class="fas fa-handshake mr-2"></i>Request Exchange
+                                </button>
+                                <button class="flex-1 border-2 border-shelf-brown text-shelf-brown py-3 px-6 rounded-lg font-medium hover:bg-shelf-brown hover:text-white transition-colors" data-event="click:sendMessage">
+                                    <i class="fas fa-comment mr-2"></i>Send Message
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: Book Detail Modal -->
+
+    <!-- @COMPONENT: Toast Notifications [success/error feedback] -->
+    <div id="toast" class="fixed top-4 right-4 z-50 hidden">
+        <div class="bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3">
+            <i class="fas fa-check-circle"></i>
+            <span data-bind="toast.message">Book uploaded successfully!</span>
+            <button class="ml-4 text-white hover:text-gray-200" data-event="click:closeToast">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: Toast Notifications -->
+
+    <!-- @COMPONENT: Footer [platform information] -->
+    <footer class="bg-shelf-charcoal text-white mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="md:col-span-2">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-book-open text-shelf-gold text-2xl"></i>
+                        <span class="font-serif font-bold text-xl">ShelfSwap</span>
+                    </div>
+                    <p class="text-gray-300 mb-4 max-w-md">
+                        Connecting book lovers and building reading communities through secure, easy book exchanges. Discover your next great read today.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-shelf-gold transition-colors">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-shelf-gold transition-colors">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-shelf-gold transition-colors">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-lg mb-4">Quick Links</h3>
+                    <ul class="space-y-2 text-gray-300">
+                        <li><a href="/books" class="hover:text-shelf-gold transition-colors">Browse Books</a></li>
+                        <li><a href="/upload" class="hover:text-shelf-gold transition-colors">Upload Books</a></li>
+                        <li><a href="/exchanges" class="hover:text-shelf-gold transition-colors">My Exchanges</a></li>
+                        <li><a href="/profile" class="hover:text-shelf-gold transition-colors">Profile</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-lg mb-4">Support</h3>
+                    <ul class="space-y-2 text-gray-300">
+                        <li><a href="/help" class="hover:text-shelf-gold transition-colors">Help Center</a></li>
+                        <li><a href="/safety" class="hover:text-shelf-gold transition-colors">Safety Guidelines</a></li>
+                        <li><a href="/contact" class="hover:text-shelf-gold transition-colors">Contact Us</a></li>
+                        <li><a href="/feedback" class="hover:text-shelf-gold transition-colors">Feedback</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 pt-8 mt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 text-sm">© 2024 ShelfSwap. All rights reserved.</p>
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <a href="/privacy" class="text-gray-400 hover:text-shelf-gold text-sm transition-colors">Privacy Policy</a>
+                    <a href="/terms" class="text-gray-400 hover:text-shelf-gold text-sm transition-colors">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- @END_COMPONENT: Footer -->
+
+    <script>
+        // TODO: Implement business logic, API calls, and state management
+        (function() {
+            // Modal functionality
+            const uploadModal = document.getElementById('uploadModal');
+            const bookDetailModal = document.getElementById('bookDetailModal');
+            
+            // Show upload modal
+            document.querySelector('[data-event="click:handleUpload"]').addEventListener('click', function() {
+                uploadModal.classList.remove('hidden');
+            });
+            
+            // Close modals
+            document.querySelectorAll('[data-event="click:closeModal"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    uploadModal.classList.add('hidden');
+                });
+            });
+            
+            document.querySelectorAll('[data-event="click:closeBookDetail"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    bookDetailModal.classList.add('hidden');
+                });
+            });
+            
+            // Show book details
+            document.querySelectorAll('[data-event="click:showBookDetails"]').forEach(card => {
+                card.addEventListener('click', function() {
+                    bookDetailModal.classList.remove('hidden');
+                });
+            });
+            
+            // Toast notifications
+            const toast = document.getElementById('toast');
+            function showToast(message, type = 'success') {
+                const toastElement = toast.querySelector('[data-bind="toast.message"]');
+                toastElement.textContent = message;
+                
+                // Change color based on type
+                const container = toast.querySelector('div');
+                container.className = container.className.replace(/bg-(green|red)-500/, `bg-${type === 'success' ? 'green' : 'red'}-500`);
+                
+                toast.classList.remove('hidden');
+                
+                // Auto-hide after 3 seconds
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 3000);
+            }
+            
+            // Close toast
+            document.querySelector('[data-event="click:closeToast"]').addEventListener('click', function() {
+                toast.classList.add('hidden');
+            });
+            
+            // Form submission (mock)
+            document.querySelector('[data-event="submit:handleBookUpload"]').addEventListener('submit', function(e) {
+                e.preventDefault();
+                showToast('Book uploaded successfully!', 'success');
+                uploadModal.classList.add('hidden');
+                // TODO: Implement actual book upload logic
+            });
+            
+            // Exchange request (mock)
+            document.querySelector('[data-event="click:requestExchange"]').addEventListener('click', function() {
+                showToast('Exchange request sent!', 'success');
+                bookDetailModal.classList.add('hidden');
+                // TODO: Implement exchange request logic
+            });
+            
+            // Message functionality (mock)
+            document.querySelector('[data-event="click:sendMessage"]').addEventListener('click', function() {
+                showToast('Message sent to book owner!', 'success');
+                bookDetailModal.classList.add('hidden');
+                // TODO: Implement messaging system
+            });
+            
+            // Close modals when clicking outside
+            window.addEventListener('click', function(e) {
+                if (e.target === uploadModal) {
+                    uploadModal.classList.add('hidden');
+                }
+                if (e.target === bookDetailModal) {
+                    bookDetailModal.classList.add('hidden');
+                }
+            });
+        })();
+    </script>
+</body>
+</html>
